@@ -5,3 +5,4 @@ PyPDF2
 requests
 openai
 azure-identity
+gunicorn==20.1.0
