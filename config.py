@@ -1,7 +1,11 @@
 import os
+from dotenv import load_dotenv
 import secrets
+load_dotenv()
+
 
 class Config:
+    AZURE_OPENAI_API_KEY = os.getenv('AZURE_OPENAI_API_KEY')
     # General Flask settings
     SECRET_KEY = secrets.token_hex(16)  # Replace with a secure key
     DEBUG = True
@@ -12,7 +16,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Azure OpenAI API settings
-    AZURE_OPENAI_API_KEY = "GGaIMnCjhkm5fOeONK5Z8UoteQYnVqGa9WfCZXFvkwC31YyeMPqOJQQJ99AKACYeBjFXJ3w3AAABACOGY4ub"  # Replace with your actual API key
+     # Replace with your actual API key
     AZURE_OPENAI_ENDPOINT = "https://egpt123.openai.azure.com/"  # Replace with your endpoint URL
     DEPLOYMENT_NAME = "gpt-35-turbo"  # Replace with your deployment name
     API_VERSION = "2024-05-01-preview"
