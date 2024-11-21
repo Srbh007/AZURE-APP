@@ -1,566 +1,276 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EGPT - Ghat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        /* Reset and Body Styling */
+        /* Base Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            min-height: 100vh;
-            flex-direction: column;
+            background-color: #ECF0F1;
             overflow-x: hidden;
-        }
-
-        /* Layout Containers */
-        .main-container {
-            display: flex;
-            width: 100%;
-            flex: 1;
-            min-height: calc(100vh - 50px);
+            height: 100vh;
             position: relative;
         }
 
-        /* Left Pane (Sidebar) */
-        .left-pane {
-            background-color: #f0f0f0;
-            width: 280px;
-            height: 100vh;
-            padding-top: 100px; /* Increased spacing from top */
+        /* Header Styles */
+        .header {
+            height: 55px;
+            background-color: #F1F3FF;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            border-right: 1px solid #ddd;
-            position: fixed;
-            left: 0;
-            transition: all 0.3s ease;
-            overflow-y: auto;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        }
-
-        /* Hidden state for left pane */
-        .left-pane.hidden {
-            transform: translateX(-100%);
-        }
-
-        .hamburger {
-            font-size: 24px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            position: fixed;
-            top: 25px;
-            left: 25px;
-            z-index: 1000;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: rgba(255,255,255,0.9);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-        }
-
-        .hamburger:hover {
-            background-color: #007BFF;
-            color: white;
-        }
-
-        .main-content-toggle {
-            font-size: 24px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            position: fixed;
-            top: 25px;
-            left: 25px;
-            display: none;
-            z-index: 1000;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: rgba(255,255,255,0.9);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        /* Left Pane Buttons */
-        .nav-btn {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 15px;
-            margin: 10px 0;
-            width: 80%;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-.gav-btn{
-    color: rgb(24, 18, 18);
-            border: none;
-            padding: 15px;
-            margin: 10px 0;
-            width: 80%;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-}
-        .nav-btn:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-
-        /* Bottom Buttons in Left Pane */
-        .bottom-buttons {
-            margin-top: auto;
-            margin-bottom: 30px;
-            width: 100%;
+            justify-content: space-between;
             padding: 0 20px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 998;
+            transition: all 0.3s ease;
         }
 
-        /* Center Content */
-        .center-content {
-            margin-left: 280px;
-            padding: 30px;
-            text-align: center;
+        body.sidebar-active .header {
+            left: 300px;
+            width: calc(100% - 300px);
+        }
+
+        .left-logos {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 60px;
+        }
+
+        .round-logo {
+            width: 35px;
+            height: 35px;
+            background: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+            transform-origin: center;
+            z-index: 1002;
+            margin: 30px;
+            transition: transform 0.3s ease;
+        }
+
+        .round-logo:hover {
+            transform: scale(2.5);
+            z-index: 1002;
+        }
+
+        .text-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #5555ee;
+        }
+
+        /* Right Buttons */
+        .right-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .top-right-button {
+            background: #F1F3FF;
+            color: #060982;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .top-right-button:hover {
+            background: #D1D9FF;
+        }
+
+        /* Hamburger Button */
+        .hamburger-btn {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            background: #F1F3FF;
+            border: none;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
-            width: calc(100% - 280px);
-            min-height: calc(100vh - 50px);
+            gap: 4px;
+            cursor: pointer;
+            z-index: 1001;
+            left: 10px;
+            top: 8px;
             transition: all 0.3s ease;
         }
 
-        /* Header Buttons */
-        .header-buttons {
-            position: absolute;
+        body.sidebar-active .hamburger-btn {
+            left: 20px;
             top: 20px;
-            right: 20px;
+            background: none;
+        }
+
+        .hamburger-line {
+            width: 20px;
+            height: 2px;
+            background-color: black;
+            margin: 2px 0;
+            transition: all 0.3s ease;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: 300px;
+            min-width: 300px;
+            height: 100vh;
+            background: #f1f3ff;
+            color: #060982;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: fixed;
+            left: -300px;
+            top: 0;
+            z-index: 999;
             display: flex;
-            gap: 15px;
-            z-index: 100;
+            flex-direction: column;
         }
 
-        .header-btn {
-            background: linear-gradient(145deg, #800080, #4b0082);
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        #sidebar.active {
+            left: 0;
         }
 
-        .header-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 200px;
+            margin-top: 60px;
         }
 
-        /* Logo and Slogan */
-        .logo-container {
-            margin: 40px 0;
-            text-align: center;
-            border: 2px solid purple;
-            padding: 30px;
+        .new-chat-btn {
+            background: #E6EAFF;
+            color: #060982;
+            padding: 12px 20px;
             border-radius: 15px;
-            width: 90%;
-            max-width: 800px;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .logo {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-            margin: 0 auto;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .slogan {
-            font-size: 1.3em;
-            color: #333;
-            margin-top: 20px;
-            line-height: 1.5;
-        }
-
-        /* Prompt Buttons Grid */
-        .prompt-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            width: 90%;
-            max-width: 800px;
-            margin: 30px 0;
-        }
-
-        .prompt-btn {
-            padding: 15px 25px;
-            background: linear-gradient(145deg, #007BFF, #0056b3);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            width: 100%;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            min-width: 150px;
         }
 
-        .prompt-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        .new-chat-btn:hover {
+            background: #D1D9FF;
         }
 
-        /* Ask container */
-        .ask-container {
-            width: 90%;
-            max-width: 800px;
-            margin: 30px auto;
+        .section-title {
+            color: #2323FF;
+            margin: 15px 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .menu-item {
+            background: #F1F3FF;
+            padding: 12px 15px;
+            border-radius: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .menu-item:hover {
+            background: #D1D9FF;
+        }
+
+        /* Bottom Buttons */
+        .sidebar-bottom-buttons {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             padding: 20px;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .ask-container form {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-        }
-
-        #query-input {
-            flex: 1;
-            padding: 15px 20px;
-            font-size: 16px;
-            border: 2px solid #e1e4e8;
-            border-radius: 8px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        #query-input:focus {
-            border-color: #007BFF;
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
-        }
-
-        button[type="submit"] {
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: 500;
-            border-radius: 8px;
-            background: linear-gradient(145deg, #007BFF, #0056b3);
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        button[type="submit"]:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,123,255,0.3);
-        }
-
-        /* Responsive Design */
-        @media screen and (max-width: 1024px) {
-            .left-pane {
-                width: 240px;
-            }
-            
-            .center-content {
-                margin-left: 240px;
-                width: calc(100% - 240px);
-            }
-        }
-
-        @media screen and (max-width: 768px) {
-            .left-pane {
-                width: 280px;
-                transform: translateX(-100%);
-                z-index: 1000;
-            }
-
-            .left-pane.active {
-                transform: translateX(0);
-            }
-
-            .center-content {
-                margin-left: 0;
-                width: 100%;
-                padding: 20px;
-            }
-
-            .header-buttons {
-                position: relative;
-                top: 0;
-                right: 0;
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-
-            .logo-container {
-                width: 95%;
-                padding: 20px;
-            }
-
-            .prompt-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }
-
-            .ask-container form {
-                flex-direction: column;
-            }
-
-            button[type="submit"] {
-                width: 100%;
-            }
-        }
-
-        @media screen and (max-width: 480px) {
-            .prompt-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .header-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .logo {
-                width: 150px;
-                height: 150px;
-            }
-        }
-
-        /* Footer styling */
-        footer {
-            background: linear-gradient(to right, #1e3c72, #2a5298);
-            color: white;
-            padding: 40px 0;
-            width: 100%;
-            margin-top: auto;
-            position: relative;
-            z-index: 10;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .footer-columns {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .footer-column {
+            border-top: 1px solid #e5e7eb;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        .footer-link {
-            color: white;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-link:hover {
-            color: #007BFF;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-        /* Reset and Body Styling */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
+        .sidebar-bottom-buttons button {
+            background: #f1f3ff;
+            color: #060982;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 15px;
+            cursor: pointer;
             display: flex;
-            min-height: 100vh;
-            flex-direction: column;
-            overflow-x: hidden;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
         }
 
-        /* Layout Containers */
+        .sidebar-bottom-buttons button:hover {
+            background: #D1D9FF;
+        }
+
+        .try-advanced-mobile {
+            display: none !important;
+        }
+
+        /* Main Container */
         .main-container {
-            display: flex;
-            width: 100%;
-            flex: 1;
-            min-height: calc(100vh - 50px);
-            position: relative;
-        }
-
-        /* Left Pane (Sidebar) */
-        .left-pane {
-            background-color: #f0f0f0;
-            width: 280px;
-            height: 100vh;
-            padding-top: 100px; /* Increased spacing from top */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-right: 1px solid #ddd;
-            position: fixed;
-            left: 0;
-            transition: all 0.3s ease;
-            overflow-y: auto;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        }
-
-        /* Hidden state for left pane */
-        .left-pane.hidden {
-            transform: translateX(-100%);
-        }
-
-        .hamburger {
-            font-size: 24px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            position: fixed;
-            top: 25px;
-            left: 25px;
-            z-index: 1000;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: rgba(255,255,255,0.9);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            padding-top: 55px;
+            min-height: 100vh;
             transition: all 0.3s ease;
         }
 
-        .hamburger:hover {
-            background-color: #007BFF;
-            color: white;
-        }
-
-        .main-content-toggle {
-            font-size: 24px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            position: fixed;
-            top: 25px;
-            left: 25px;
-            display: none;
-            z-index: 1000;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: rgba(255,255,255,0.9);
-            box-shadow: 0 2px 5px rgba(23, 18, 183, 0.321);
-        }
-
-        /* Left Pane Buttons */
-        .nav-btn {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 15px;
-            margin: 10px 0;
-            width: 80%;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .nav-btn:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(6, 77, 120, 0.2);
-        }
-
-        /* Bottom Buttons in Left Pane */
-        .bottom-buttons {
-            margin-top: auto;
-            margin-bottom: 30px;
-            width: 100%;
-            padding: 0 20px;
-        }
-
-        /* Center Content */
         .center-content {
-            margin-left: 280px;
-            padding: 30px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: calc(100% - 280px);
-            min-height: calc(100vh - 50px);
             transition: all 0.3s ease;
+            padding: 20px;
+            margin-left: 0;
         }
 
-        /* Header Buttons */
-        .header-buttons {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 15px;
-            z-index: 100;
+        body.sidebar-active .center-content {
+            margin-left: 300px;
         }
 
-        .header-btn {
-            background: linear-gradient(145deg, #0a52c5, #e1dde3);
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .header-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-
-        /* Logo and Slogan */
+        /* Logo Container */
         .logo-container {
-            margin: 40px 0;
+            margin: 20px auto 40px;
             text-align: center;
-            border: 2px solid rgb(55, 128, 237);
+            border: 2px solid rgb(237, 241, 246);
             padding: 30px;
             border-radius: 15px;
             width: 90%;
-            max-width: 800px;
+            max-width: 600px;
             background-color: white;
             box-shadow: 0 4px 8px rgba(47, 111, 224, 0.1);
+            position: relative;
+            transition: all 0.3s ease;
         }
 
         .logo {
@@ -569,176 +279,107 @@
             border-radius: 50%;
             object-fit: cover;
             display: block;
-            margin: 0 auto;
+            margin: 0 auto 20px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .slogan {
             font-size: 1.3em;
             color: #333;
-            margin-top: 20px;
             line-height: 1.5;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
-        /* Prompt Buttons Grid */
+        /* Prompt Grid */
         .prompt-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             width: 90%;
             max-width: 800px;
-            margin: 30px 0;
+            margin: 30px auto;
+            padding: 0 20px;
         }
 
         .prompt-btn {
-            padding: 15px 25px;
+            padding: 20px 25px;
             background: linear-gradient(145deg, #007BFF, #0056b3);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 15px;
             font-size: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            min-width: 150px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.4;
         }
 
         .prompt-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background: linear-gradient(145deg, #0056b3, #004494);
         }
 
-        /* Ask container */
+        /* Ask Container */
         .ask-container {
             width: 90%;
             max-width: 800px;
             margin: 30px auto;
-            padding: 20px;
             background: white;
-            border-radius: 12px;
+            border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
         }
 
-        .ask-container form {
-            display: flex;
-            gap: 15px;
+        .search-container {
+            position: relative;
             width: 100%;
+            display: flex;
+            align-items: center;
+            background: #F1F3FF;
+            border-radius: 15px;
+            padding: 5px;
         }
 
-        #query-input {
+        .search-input {
             flex: 1;
             padding: 15px 20px;
+            border: none;
+            background: transparent;
             font-size: 16px;
-            border: 2px solid #e1e4e8;
-            border-radius: 8px;
             outline: none;
-            transition: all 0.3s ease;
+            border-radius: 15px;
         }
 
-        #query-input:focus {
-            border-color: #007BFF;
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
-        }
-
-        button[type="submit"] {
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: 500;
-            border-radius: 8px;
-            background: linear-gradient(145deg, #007BFF, #0056b3);
+        .search-button {
+            background: #4a4aed;
             color: white;
             border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px;
             transition: all 0.3s ease;
-            white-space: nowrap;
         }
 
-        button[type="submit"]:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+        .search-button:hover {
+            background: #3939cc;
         }
 
-        /* Responsive Design */
-        @media screen and (max-width: 1024px) {
-            .left-pane {
-                width: 240px;
-            }
-            
-            .center-content {
-                margin-left: 240px;
-                width: calc(100% - 240px);
-            }
-        }
-
-        @media screen and (max-width: 768px) {
-            .left-pane {
-                width: 280px;
-                transform: translateX(-100%);
-                z-index: 1000;
-            }
-
-            .left-pane.active {
-                transform: translateX(0);
-            }
-
-            .center-content {
-                margin-left: 0;
-                width: 100%;
-                padding: 20px;
-            }
-
-            .header-buttons {
-                position: relative;
-                top: 0;
-                right: 0;
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-
-            .logo-container {
-                width: 95%;
-                padding: 20px;
-            }
-
-            .prompt-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }
-
-            .ask-container form {
-                flex-direction: column;
-            }
-
-            button[type="submit"] {
-                width: 100%;
-            }
-        }
-
-        @media screen and (max-width: 480px) {
-            .prompt-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .header-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .logo {
-                width: 150px;
-                height: 150px;
-            }
-        }
-
-        /* Footer styling */
+        /* Footer */
         footer {
             background: linear-gradient(to right, #1e3c72, #2a5298);
             color: white;
             padding: 40px 0;
-            width: 100%;
             margin-top: auto;
-            position: relative;
-            z-index: 10;
         }
 
         .footer-content {
@@ -747,507 +388,500 @@
             padding: 0 20px;
         }
 
-        .footer-columns {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        .footer-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
             gap: 30px;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
             margin-bottom: 30px;
         }
 
-        .footer-column {
+        .footer-links {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        .footer-link {
+        .footer-links a {
             color: white;
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: opacity 0.3s ease;
         }
 
-        .footer-link:hover {
-            color: #007BFF;
+        .footer-links a:hover {
+            opacity: 0.8;
         }
 
-        .footer-bottom {
+        .footer-social {
             text-align: center;
-            padding-top: 20px;
+            margin: 30px 0;
+            padding: 20px 0;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
-        /* ... (keep all your existing CSS) ... */
 
-/* Update the Prompt Buttons Grid styling */
-.prompt-grid {
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .social-icons a {
+            color: white;
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            transform: translateY(-2px);
+        }
+        .prompt-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Forces 2x2 layout */
-    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
     width: 90%;
-    max-width: 600px; /* Reduced to make grid more compact */
+    max-width: 800px;
     margin: 30px auto;
     padding: 0 20px;
 }
 
 .prompt-btn {
-    padding: 20px 25px; /* Increased padding for better appearance */
-    background: linear-gradient(145deg, #007BFF, #0056b3);
+    padding: 15px;
+    background: #6054e6;
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    border-radius: 10px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(34, 12, 157, 0.1);
-    min-width: 120px;
-    height: 80px; /* Fixed height for uniform appearance */
+    min-height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
+    line-height: 1.3;
+    width: 100%;
+    word-wrap: break-word;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .prompt-btn:hover {
+    background: #0056b3;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    background: linear-gradient(145deg, #0056b3, #004494);
 }
 
-/* Update responsive styles for the grid */
+/* Ask Container - Updated */
+.ask-container {
+    width: 90%;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 10px;
+}
+
+.search-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background: #F1F3FF;
+    border-radius: 15px;
+    padding: 5px;
+    gap: 5px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    outline: none;
+    border-radius: 15px;
+}
+
+.search-button {
+    background: #4a4aed;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+    min-width: 80px;
+    justify-content: center;
+}
+
+
+        /* Responsive Styles */
+        @media screen and (max-width: 768px) {
+            /* Header Adjustments */
+            .header .top-right-button:first-child {
+                display: none !important;
+            }
+
+            .try-advanced-mobile {
+                display: flex !important;
+            }
+
+            /* Sidebar Adjustments */
+            body.sidebar-active .header,
+            body.sidebar-active .center-content {
+                left: 0;
+                width: 100%;
+                margin-left: 0;
+            }
+
+            /* Logo Container */
+            .logo-container {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .logo {
+                width: 150px;
+                height: 150px;
+            }
+
+            /* Prompt Grid */
+            .prompt-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            /* Search Container */
+            .search-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .search-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .header {
+                padding: 0 10px;
+            }
+
+            .left-logos {
+                margin-left: 50px;
+            }
+
+            .round-logo {
+                margin: 20px;
+            }
+
+            .logo-container {
+                padding: 15px;
+            }
+
+            .prompt-btn {
+                min-height: 70px;
+                font-size: 14px;
+            }
+        }
+        /* Mobile Responsive Updates */
 @media screen and (max-width: 768px) {
     .prompt-grid {
-        grid-template-columns: repeat(2, 1fr); /* Maintain 2x2 on tablets */
-        gap: 15px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
         padding: 0 15px;
+    }
+
+    .prompt-btn {
+        font-size: 12px;
+        padding: 10px;
+        min-height: 60px;
+    }
+
+    .search-container {
+        padding: 3px;
+    }
+
+    .search-input {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+
+    .search-button {
+        padding: 6px 12px;
+        font-size: 12px;
     }
 }
 
 @media screen and (max-width: 480px) {
     .prompt-grid {
-        grid-template-columns: repeat(2, 1fr); /* Still maintain 2x2 on mobile */
-        gap: 10px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
         padding: 0 10px;
     }
-    
+
     .prompt-btn {
-        padding: 15px;
-        font-size: 14px;
-        height: 70px;
+        font-size: 11px;
+        padding: 8px;
+        min-height: 55px;
+        line-height: 1.2;
     }
-}
-/* Header Styles */
-.header {
-    height: 45px;
-    background-color: #dee2fa;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    z-index: 998;
-}
 
-.left-logos {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.round-logo {
-    width: 35px;
-    height: 35px;
-    background: #6565ec;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-}
-
-.text-logo {
-    font-size: 20px;
-    font-weight: bold;
-    color: #5555ee;
-}
-
-/* Top Right Buttons */
-.right-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.top-right-button {
-    background: #F1F3FF;
-    color: #6161e9;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background-color 0.3s ease;
-}
-/* Top Right Buttons */
-.right-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.top-right-button {
-    background: #F1F3FF;
-    color: #6161e9;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background-color 0.3s ease;
-}
-
-.top-right-button:hover {
-    background: #D1D9FF;
-}
-
-.top-right-button:hover {
-    background: #D1D9FF;
-}
-/* Header Styles */
-.header {
-    height: 45px;
-    background-color: #dee2fa;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    z-index: 998;
-}
-
-.left-logos {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.round-logo {
-    width: 35px;
-    height: 35px;
-    background: #6565ec;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-}
-
-.text-logo {
-    font-size: 20px;
-    font-weight: bold;
-    color: #5555ee;
-}
-/* Update these header-related styles in your CSS section */
-
-.header {
-    height: 45px;
-    background-color: #dee2fa;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 280px; /* Match left pane width */
-    z-index: 998;
-    transition: left 0.3s ease;
-}
-
-.left-logos {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    height: 45px;
-    padding: 5px 0;
-}
-
-.round-logo {
-    width: 35px;
-    height: 35px;
-    object-fit: contain;
-}
-
-.text-logo {
-    height: 35px;
-    width: auto;
-    object-fit: contain;
-}
-
-/* Update header position when sidebar is hidden */
-.left-pane.hidden + .center-content .header {
-    left: 0;
-}
-
-/* Responsive styles for header */
-@media screen and (max-width: 1024px) {
-    .header {
-        left: 240px;
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .header {
-        left: 0;
+    .search-button {
+        padding: 6px 10px;
     }
 }
     </style>
 </head>
 <body>
-
-<div class="main-container">
-    <!-- Left Pane Sidebar -->
-    <div class="left-pane" id="leftPane">
-        <button class="hamburger" onclick="toggleSidebar()">☰</button>
-        <button class="nav-btn">+ New Project</button>
-        <button class="gav-btn">Recents</button>
-
-        <div class="bottom-buttons">
-            <button class="nav-btn">Upgrade Account</button>
-            <button class="nav-btn">Settings</button>
-            <button class="nav-btn">Help</button>
+    <div class="header">
+        <div class="left-logos">
+            <img src="{{ url_for('static', filename='images/HT.png') }}" alt="HT Logo" class="round-logo">
+            <img src="{{ url_for('static', filename='images/xyz.png') }}" alt="XYZ Logo" class="text-logo">
+        </div>
+        <div class="right-buttons">
+            <button class="top-right-button" onclick="tryAdvanced()">
+                <i class="fas fa-rocket"></i> Try Advanced
+            </button>
+            <button class="top-right-button" onclick="shareCurrentPage()">
+                <i class="fas fa-share"></i> Share
+            </button>
         </div>
     </div>
 
-    <!-- Center Main Content -->
-    <div class="center-content">
-        <!-- Toggle Button for Sidebar -->
-        <button class="main-content-toggle" id="mainToggle" onclick="toggleSidebar()">☰</button>
+    <div class="main-container">
+        <button class="hamburger-btn" onclick="toggleSidebar()">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
 
-        <div class="header">
-            <div class="left-logos">
-                <!-- Round HT logo -->
-                <img src="{{ url_for('static', filename='images/HT.jpg') }}" alt="HT Logo" class="round-logo">
-                <!-- XYZ text logo -->
-                <img src="{{ url_for('static', filename='images/xyz.jpg') }}" alt="XYZ Logo" class="text-logo">
+        <div id="sidebar">
+            <div class="sidebar-content">
+                <button class="new-chat-btn">
+                    <i class="fas fa-plus"></i>
+                    New Project
+                </button>
+
+                <div class="section-title">Recents</div>
+                <div class="menu-item">Project 1</div>
+                <div class="menu-item">Project 2</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="menu-item">Project 3</div>
+                <div class="menu-item">Project 4</div>
+                <div class="menu-item">Project 5</div>
+                <div class="menu-item">Project 6</div>
+                <div class="menu-item">Project 7</div>
             </div>
-            <div class="right-buttons">
-                <button class="top-right-button" onclick="tryAdvanced()">
+
+            <div class="sidebar-bottom-buttons">
+                <button class="try-advanced-mobile" onclick="tryAdvanced()">
                     <i class="fas fa-rocket"></i> Try Advanced
                 </button>
-                <button class="top-right-button" onclick="shareCurrentPage()">
-                    <i class="fas fa-share"></i> Share
-                </button>
+                <button><i class="fas fa-user"></i> Account</button>
+                <button><i class="fas fa-cog"></i> Settings</button>
+                <button><i class="fas fa-question-circle"></i> Help</button>
             </div>
         </div>
 
-        <!-- Logo Container -->
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='images/HT.jpg') }}" alt="Logo" class="logo">
-            <p class="slogan">We are your next stop solution to every IoT problem you want to solve...</p>
-        </div>
-
-        <!-- Prompt Buttons Grid -->
-        <div class="prompt-grid">
-            <button class="prompt-btn" onclick="submitQuery('Node MCU')">Node MCU</button>
-            <button class="prompt-btn" onclick="submitQuery('Capacitor')">Capacitor</button>
-            <button class="prompt-btn" onclick="submitQuery('Robotics')">Robotics</button>
-            <button class="prompt-btn" onclick="submitQuery('IDE')">IDE</button>
-        </div>
-        <div class="ask-container">
-            <form action="{{ url_for('chat') }}" method="get">
-                <input type="text" id="query-input" name="query" placeholder="Ask EGPT...">
-                <button type="submit">Ask EGPT</button>
-            </form>
-        </div>>
-    </div>
-</div>
-
-<footer style="background: linear-gradient(to right, #1e3c72, #2a5298); color: white; padding: 40px 0; width: 100%; font-family: Arial, sans-serif;">
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-        <!-- Logo Section -->
-        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px;">
-            <!-- Company Info -->
-            <div style="flex: 1; min-width: 250px; margin-bottom: 30px;">
-                <div style="margin-bottom: 20px;">
-                    <h3 style="margin: 0; font-size: 24px; font-weight: 600;">Electro Global</h3>
-                    <p style="margin: 5px 0; color: #e0e0e0;">Innovate With Us</p>
-                </div>
-                <div style="color: #e0e0e0; line-height: 1.6;">
-                    <p style="margin: 5px 0;">Bhamashah Technohub, Jaipur<br>Rajasthan</p>
-                    <p style="margin: 5px 0;">(+91)-723-101-2223<br>(+91)-921-671-6124</p>
-                    <p style="margin: 5px 0;">contact@electroglobal.in</p>
-                </div>
+        <div class="center-content">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='images/HT.png') }}" alt="Logo" class="logo">
+                <p class="slogan">We are your next stop solution to every IoT problem you want to solve...</p>
             </div>
 
-            <!-- Quick Links -->
-            <div style="flex: 1; min-width: 250px; margin-bottom: 30px;">
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Delivery and Returns</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Privacy Policy</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Terms & Conditions</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">About Us</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Shipping Policy</a>
-                </div>
+            <div class="prompt-grid">
+                <button class="prompt-btn" onclick="submitQuery('Node MCU')">How to make an advanced Line Follower Robot</button>
+                <button class="prompt-btn" onclick="submitQuery('Capacitor')">How to make an Obstacle Avoiding Robot</button>
+                <button class="prompt-btn" onclick="submitQuery('Robotics')">How to make a Bluetooth Controlled Car</button>
+                <button class="prompt-btn" onclick="submitQuery('IDE')">How to make Home Automation Project</button>
             </div>
 
-            <!-- Shop Links -->
-            <div style="flex: 1; min-width: 250px; margin-bottom: 30px;">
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">New Arrivals</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Daily Deals</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Bulk Order</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Shop</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Contact Us</a>
-                </div>
+            <div class="ask-container">
+                <form action="{{ url_for('chat') }}" method="get">
+                    <div class="search-container">
+                        <input type="text" id="query-input" name="query" class="search-input" placeholder="Ask EGPT...">
+                        <button type="submit" class="search-button">
+                            <i class="fas fa-paper-plane"></i>
+                            Send
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <!-- Account Links -->
-            <div style="flex: 1; min-width: 250px; margin-bottom: 30px;">
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">My Account</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Blog/Guide</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Categories</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Electro Kits</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- App Downloads -->
-        <div style="text-align: center; margin: 30px 0; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1);">
-            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                <a href="#" style="display: inline-block;"><img src="/api/placeholder/150/50" alt="Google Play" style="height: 40px;"></a>
-                <a href="#" style="display: inline-block;"><img src="/api/placeholder/150/50" alt="App Store" style="height: 40px;"></a>
-            </div>
-        </div>
-
-        <!-- Social Icons -->
-        <div style="text-align: center; margin: 20px 0;">
-            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-facebook"></i></a>
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-twitter"></i></a>
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-instagram"></i></a>
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-linkedin"></i></a>
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-youtube"></i></a>
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-whatsapp"></i></a>
-            </div>
-        </div>
-
-        <!-- Copyright -->
-        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <p style="margin: 0; color: #e0e0e0;">&copy; 2024 Electroglobal Solutions Pvt Ltd. All Rights Reserved.</p>
         </div>
     </div>
-</footer>
 
-<script>
-    function toggleSidebar() {
-        const leftPane = document.getElementById('leftPane');
-        const mainToggle = document.getElementById('mainToggle');
-        
-        if (window.innerWidth <= 768) {
-            leftPane.classList.toggle('active');
-        } else {
-            leftPane.classList.toggle('hidden');
-        }
-        
-        if (leftPane.classList.contains('hidden') || leftPane.classList.contains('active')) {
-            mainToggle.style.display = 'block';
-        } else {
-            mainToggle.style.display = 'none';
-        }
-    }
+    <footer>
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin: 0; font-size: 24px; font-weight: 600;">Electro Global</h3>
+                        <p style="margin: 5px 0; color: #e0e0e0;">Innovate With Us</p>
+                    </div>
+                    <div style="color: #e0e0e0; line-height: 1.6;">
+                        <p style="margin: 5px 0;">Bhamashah Technohub, Jaipur<br>Rajasthan</p>
+                        <p style="margin: 5px 0;">(+91)-723-101-2223<br>(+91)-921-671-6124</p>
+                        <p style="margin: 5px 0;">contact@electroglobal.in</p>
+                    </div>
+                </div>
 
-    function submitQuery(query) {
-        document.getElementById("query-input").value = query;
-        document.querySelector('form').submit();
-    }
+                <div class="footer-section">
+                    <div class="footer-links">
+                        <a href="#">Delivery and Returns</a>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms & Conditions</a>
+                        <a href="#">About Us</a>
+                        <a href="#">Shipping Policy</a>
+                    </div>
+                </div>
 
-    // Add resize handler
-    window.addEventListener('resize', function() {
-        const leftPane = document.getElementById('leftPane');
-        const mainToggle = document.getElementById('mainToggle');
-        
-        if (window.innerWidth > 768) {
-            leftPane.classList.remove('active');
-            if (!leftPane.classList.contains('hidden')) {
-                mainToggle.style.display = 'none';
+                <div class="footer-section">
+                    <div class="footer-links">
+                        <a href="#">New Arrivals</a>
+                        <a href="#">Daily Deals</a>
+                        <a href="#">Bulk Order</a>
+                        <a href="#">Shop</a>
+                        <a href="#">Contact Us</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <div class="footer-links">
+                        <a href="#">My Account</a>
+                        <a href="#">Blog/Guide</a>
+                        <a href="#">Categories</a>
+                        <a href="#">Electro Kits</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-social">
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 30px;">
+                    <a href="#"><img src="/api/placeholder/150/50" alt="Google Play" style="height: 40px;"></a>
+                    <a href="#"><img src="/api/placeholder/150/50" alt="App Store" style="height: 40px;"></a>
+                </div>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p style="margin: 0; color: #e0e0e0;">&copy; 2024 Electroglobal Solutions Pvt Ltd. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const hamburger = document.querySelector('.hamburger-btn');
+            const body = document.body;
+            const mainContent = document.querySelector('.center-content');
+            const header = document.querySelector('.header');
+
+            // Toggle sidebar visibility and header position
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                body.classList.toggle('sidebar-active');
+                
+                if (window.innerWidth > 768) {
+                    if (sidebar.classList.contains('active')) {
+                        header.style.left = '300px';
+                        header.style.width = 'calc(100% - 300px)';
+                        if (mainContent) {
+                            mainContent.style.marginLeft = '300px';
+                            mainContent.style.width = 'calc(100% - 300px)';
+                        }
+                    } else {
+                        header.style.left = '0';
+                        header.style.width = '100%';
+                        if (mainContent) {
+                            mainContent.style.marginLeft = '0';
+                            mainContent.style.width = '100%';
+                        }
+                    }
+                }
             }
-        }
-    });
 
-    // Handle clicks outside sidebar on mobile
-    document.addEventListener('click', function(event) {
-        const leftPane = document.getElementById('leftPane');
-        const hamburger = document.querySelector('.hamburger');
-        
-        if (window.innerWidth <= 768 && 
-            leftPane.classList.contains('active') && 
-            !leftPane.contains(event.target) && 
-            event.target !== hamburger) {
-            leftPane.classList.remove('active');
-        }
-    });
-    function toggleSidebar() {
-        const leftPane = document.getElementById('leftPane');
-        const mainToggle = document.getElementById('mainToggle');
-        
-        if (window.innerWidth <= 768) {
-            leftPane.classList.toggle('active');
-        } else {
-            leftPane.classList.toggle('hidden');
-        }
-        
-        if (leftPane.classList.contains('hidden') || leftPane.classList.contains('active')) {
-            mainToggle.style.display = 'block';
-        } else {
-            mainToggle.style.display = 'none';
-        }
-    }
+            hamburger.addEventListener('click', toggleSidebar);
 
-    function submitQuery(query) {
-        document.getElementById("query-input").value = query;
-        document.querySelector('form').submit();
-    }
-
-    // Add resize handler
-    window.addEventListener('resize', function() {
-        const leftPane = document.getElementById('leftPane');
-        const mainToggle = document.getElementById('mainToggle');
-        
-        if (window.innerWidth > 768) {
-            leftPane.classList.remove('active');
-            if (!leftPane.classList.contains('hidden')) {
-                mainToggle.style.display = 'none';
+            // Submit query function
+            window.submitQuery = function(query) {
+                const inputField = document.getElementById("query-input");
+                if (inputField) {
+                    inputField.value = query;
+                    inputField.form.submit();
+                }
             }
-        }
-    });
 
-    // Handle clicks outside sidebar on mobile
-    document.addEventListener('click', function(event) {
-        const leftPane = document.getElementById('leftPane');
-        const hamburger = document.querySelector('.hamburger');
-        
-        if (window.innerWidth <= 768 && 
-            leftPane.classList.contains('active') && 
-            !leftPane.contains(event.target) && 
-            event.target !== hamburger) {
-            leftPane.classList.remove('active');
-        }
-    });
-</script>
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    header.style.left = '0';
+                    header.style.width = '100%';
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '0';
+                        mainContent.style.width = '100%';
+                    }
+                    // Close sidebar on mobile
+                    sidebar.classList.remove('active');
+                    body.classList.remove('sidebar-active');
+                } else if (sidebar.classList.contains('active')) {
+                    header.style.left = '300px';
+                    header.style.width = 'calc(100% - 300px)';
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '300px';
+                        mainContent.style.width = 'calc(100% - 300px)';
+                    }
+                }
+            });
 
+            // Try Advanced function
+            window.tryAdvanced = function() {
+                console.log("Try Advanced clicked");
+                // Implement your try advanced functionality here
+            }
+
+            // Share Current Page function
+            window.shareCurrentPage = function() {
+                console.log("Share clicked");
+                // Implement your share functionality here
+            }
+
+            // Assign query buttons functionality
+            const queryButtons = document.querySelectorAll('.prompt-btn');
+            queryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    submitQuery(this.textContent);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
