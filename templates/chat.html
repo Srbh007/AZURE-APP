@@ -74,7 +74,25 @@
         }
 
         /* Hamburger Button */
-     
+        .hamburger-btn {
+            position: fixed;
+            left: 20px;
+            top: 65px;
+            z-index: 1000;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
         .hamburger-line {
             width: 20px;
             height: 2px;
@@ -284,60 +302,25 @@ body.sidebar-active .chat-container{
     padding-right: 5px;
 }
         .send-button {
-            background: #4a4aed;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    margin: 4px;
+            padding: 12px 24px;
+            background: #2323FF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
         }
 
-        .send-button i {
-            font-size: 16px;
+        /* Sidebar States */
+        #sidebar.hidden {
+            transform: translateX(-100%);
         }
 
-        /* Left Logos */
-        .left-logos {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-left: 16px;
+        .center-content.full {
+            margin-left: 0;
         }
 
-       
-        .text-logo {
-            font-size: 20px;
-            font-weight: bold;
-            color: #5555ee;
-        }
-
-.round-logo {
-   width: 35px;
-   height: 35px;
-   background:none;
-   border-radius: 50%; 
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   color: white;
-   font-weight: bold;
-   transform: scale(2.5);
-   z-index: 1002;
-   margin: 30px;
-   position: relative;
-   transform-origin: center; 
-}
-.round-logo:hover {
-    transform: scale(2.5);
-    z-index: 1002; /* Ensure it appears above other elements */
-}
-
-        /* Mobile Responsive */
+        /* Responsive Design */
         @media (max-width: 768px) {
             #sidebar {
                 width: 100%;
@@ -458,23 +441,43 @@ body.sidebar-active .hamburger-btn {
 body.sidebar-active .left-logos {
     margin-left: 16px;
 }
-/* Loading Animation */
-.loader {
-    border: 4px solid #f3f3f3; /* Light grey */
-    border-top: 4px solid #2323FF; /* Blue */
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-    margin: auto;
-    display: none; /* Hidden by default */
+
+/* Chat Form */
+#chat-form {
+    padding: 20px;
+    background: white;
+    display: flex;
+    gap: 15px;
+    border-top: 1px solid #e5e7eb;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+#query-input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #F1F3FF;
 }
-</style>
+
+.send-button {
+    background: #2323FF;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    min-width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.send-button i {
+    font-size: 16px;
+}
+    </style>
 </head>
 <body>
     <div class="header">
