@@ -36,4 +36,3 @@ jobs:
         app-name: 'EGPT'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: '.'
-        
