@@ -14,11 +14,12 @@ import PyPDF2
 import re
 import openai
 from azure.identity import DefaultAzureCredential
+from flask_migrate import Migrate
 
-app = Flask(__name__)
 app = Flask(__name__, static_folder='static')
 app.config.from_object('config.Config')
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # OpenAI Configuration with error handling
 try:
