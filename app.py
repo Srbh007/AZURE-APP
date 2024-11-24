@@ -13,7 +13,7 @@ import os
 import PyPDF2
 import re
 import openai
-
+from azure.identity import DefaultAzureCredential
 
 app = Flask(__name__)
 app = Flask(__name__, static_folder='static')
