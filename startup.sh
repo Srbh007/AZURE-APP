@@ -30,4 +30,9 @@ if [ -d "/home/site/wwwroot/migrations" ]; then
     echo "Applying database migrations"
     python -m flask db upgrade || { echo "Database migration failed"; exit 1; }
 else
-   
+    echo "No migrations directory found. Skipping database migrations."
+fi
+
+# Start the Gunicorn server
+echo "Starting Gunicorn server"
+gunicorn --bind=0.0.0.0 --timeout 600 --workers=4 --chdir=/home/site/wwwroot app:app --log-level debug
