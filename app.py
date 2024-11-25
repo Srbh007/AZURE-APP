@@ -201,7 +201,7 @@ def chat():
 def process_search_query(query, user_id):
     try:
         response_data = {"pdf_embed_url": "", "embedded_website": "", "ai_response": ""}
-        
+
         # Check for PDF
         pdf_path = os.path.join(app.config['PDF_FOLDER'], f"{query}.pdf")
         if os.path.exists(pdf_path):
@@ -250,7 +250,7 @@ def process_search_query(query, user_id):
         new_chat = Chat(user_id=user_id, query=query, response=response_data["ai_response"])
         db.session.add(new_chat)
         db.session.commit()
-        
+
         return response_data
     except Exception as e:
         logger.error(f"Error in process_search_query: {str(e)}")
