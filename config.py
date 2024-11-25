@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 import secrets
 
-# Load environment variables from the .env file
 load_dotenv()
 
 class Config:
@@ -11,7 +10,13 @@ class Config:
     DEBUG = True
 
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db'
+    if os.environ.get('FLASK_ENV') == 'production':
+        # In production, use a database path in the writable Azure directory
+        SQLALCHEMY_DATABASE_URI = 'sqlite:////home/site/wwwroot/instance/site.db'
+    else:
+        # Local development uses the site.db in the root project directory
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db'
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Azure OpenAI API settings
