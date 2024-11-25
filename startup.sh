@@ -2,30 +2,32 @@
 
 echo "Starting Azure App Service deployment process"
 
-# Activate the virtual environment (if applicable)
-if [ -d "/home/site/wwwroot/antenv/bin" ]; then
-    echo "Activating virtual environment"
-    source /home/site/wwwroot/antenv/bin/activate
-else
-    echo "Virtual environment not found. Proceeding without it."
+# Check or create the virtual environment
+if [ ! -d "/home/site/wwwroot/antenv" ]; then
+    echo "Virtual environment not found. Creating one..."
+    python3 -m venv /home/site/wwwroot/antenv
 fi
 
-# Upgrade pip to the latest version
+# Activate the virtual environment
+echo "Activating virtual environment"
+source /home/site/wwwroot/antenv/bin/activate
+
+# Upgrade pip
 echo "Upgrading pip"
 pip install --upgrade pip
 
-# Install dependencies from requirements.txt
-echo "Installing dependencies"
-pip install -r /home/site/wwwroot/requirements.txt || { echo "Dependency installation failed"; exit 1; }
+# Install dependencies
+if [ -f "/home/site/wwwroot/requirements.txt" ]; then
+    echo "Installing dependencies"
+    pip install -r /home/site/wwwroot/requirements.txt || { echo "Dependency installation failed"; exit 1; }
+else
+    echo "requirements.txt not found! Exiting..."
+    exit 1
+fi
 
-# Apply database migrations (if any)
+# Apply database migrations (if applicable)
 if [ -d "/home/site/wwwroot/migrations" ]; then
     echo "Applying database migrations"
     python -m flask db upgrade || { echo "Database migration failed"; exit 1; }
 else
-    echo "No migrations directory found. Skipping database migrations."
-fi
-
-# Start the Gunicorn server
-echo "Starting Gunicorn server"
-gunicorn --bind=0.0.0.0 --timeout 600 --workers=4 --chdir=/home/site/wwwroot app:app --log-level debug
+   
