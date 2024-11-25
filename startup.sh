@@ -2,15 +2,15 @@
 
 echo "Starting Azure App Service deployment process"
 
-# Check or create the virtual environment
-if [ ! -d "/home/site/wwwroot/antenv" ]; then
-    echo "Virtual environment not found. Creating one..."
-    python3 -m venv /home/site/wwwroot/antenv
+# Check or create the virtual environment in a writable directory
+if [ ! -d "/tmp/antenv" ]; then
+    echo "Virtual environment not found. Creating one in /tmp..."
+    python3 -m venv /tmp/antenv
 fi
 
 # Activate the virtual environment
 echo "Activating virtual environment"
-source /home/site/wwwroot/antenv/bin/activate
+source /tmp/antenv/bin/activate
 
 # Upgrade pip
 echo "Upgrading pip"
