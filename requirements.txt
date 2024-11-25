@@ -4,9 +4,9 @@ Werkzeug
 PyPDF2
 requests
 openai
-azure-core>=1.29.5
-azure-identity>=1.15.0
 python-dotenv
 gunicorn
 Flask-Migrate
+azure-core==1.29.5
+azure-identity==1.15.0
 
