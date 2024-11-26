@@ -2,11 +2,12 @@
 
 echo "Starting Azure App Service deployment process"
 
-# Create and set permissions for necessary directories
-mkdir -p /home/site/wwwroot/instance
-chmod 777 /home/site/wwwroot/instance
-mkdir -p /home/site/wwwroot/data
-chmod 777 /home/site/wwwroot/data
+# Create necessary directories in writable location
+echo "Creating necessary directories..."
+mkdir -p /home/data/instance
+mkdir -p /home/data/uploads
+chmod -R 777 /home/data/instance
+chmod -R 777 /home/data/uploads
 
 # Create and activate virtual environment
 if [ ! -d "/home/antenv" ]; then
@@ -29,22 +30,33 @@ else
     exit 1
 fi
 
-# Initialize database with proper permissions
+# Initialize database
+echo "Initializing database..."
 python - << EOF
+import os
+import sys
+sys.path.append('/home/site/wwwroot')
 from app import initialize_database
-initialize_database()
+if not initialize_database():
+    print("Database initialization failed")
+    sys.exit(1)
 EOF
 
 # Apply migrations if they exist
 if [ -d "/home/site/wwwroot/migrations" ]; then
     echo "Applying database migrations"
+    cd /home/site/wwwroot
+    export FLASK_APP=app.py
     flask db upgrade || { echo "Migration failed"; exit 1; }
 fi
 
-# Ensure proper permissions again after all operations
-chmod 777 /home/site/wwwroot/instance
-chmod 666 /home/site/wwwroot/instance/site.db
+# Verify database permissions
+if [ -f "/home/data/instance/site.db" ]; then
+    echo "Setting database file permissions..."
+    chmod 666 /home/data/instance/site.db
+fi
 
-# Start Gunicorn
-echo "Starting Gunicorn"
-gunicorn --bind=0.0.0.0 --timeout 600 --workers=4 --chdir=/home/site/wwwroot app:app --log-level debug
+# Start Gunicorn with proper path
+echo "Starting Gunicorn..."
+cd /home/site/wwwroot
+gunicorn --bind=0.0.0.0 --timeout 600 --workers=4 app:app --log-level debug

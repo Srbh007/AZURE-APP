@@ -25,29 +25,38 @@ def initialize_database():
     """Initialize database with proper permissions"""
     with app.app_context():
         try:
-            # Ensure instance directory exists with proper permissions
+            # Ensure instance directory exists
             os.makedirs(app.config['INSTANCE_PATH'], exist_ok=True)
+            logger.info(f"Created instance directory at {app.config['INSTANCE_PATH']}")
+
+            # Set directory permissions
             os.chmod(app.config['INSTANCE_PATH'], 0o777)
-            logger.info(f"Ensured instance directory at {app.config['INSTANCE_PATH']}")
-
-            # Create database if it doesn't exist
-            if not os.path.exists(os.path.join(app.config['INSTANCE_PATH'], 'site.db')):
-                db.create_all()
-                logger.info("Created new database")
-
-            # Set database file permissions
+            logger.info("Set instance directory permissions")
+            
+            # Create necessary directories
+            for directory in [app.config['PDF_FOLDER'], app.config['UPLOAD_FOLDER']]:
+                os.makedirs(directory, exist_ok=True)
+                os.chmod(directory, 0o777)
+                logger.info(f"Created and set permissions for {directory}")
+            
+            # Initialize database
             db_path = os.path.join(app.config['INSTANCE_PATH'], 'site.db')
-            if os.path.exists(db_path):
+            if not os.path.exists(db_path):
+                db.create_all()
+                logger.info(f"Created database at {db_path}")
                 os.chmod(db_path, 0o666)
                 logger.info("Set database file permissions")
-
-            # Verify database connection
+            else:
+                logger.info("Database already exists")
+            
+            # Verify database 
             User.query.first()
             logger.info("Database connection verified")
             
             return True
         except Exception as e:
             logger.error(f"Database initialization error: {str(e)}")
+            logger.exception("Detailed traceback:")
             return False
 
 # Initialize database
@@ -174,8 +183,8 @@ def register():
             password_hash = generate_password_hash(password)
             new_user = User(username=username, email=email, password=password_hash)
             
-            # Log database path and permissions before commit
-            db_path = app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
+            # Log database path and permissions
+            db_path = os.path.join(app.config['INSTANCE_PATH'], 'site.db')
             logger.info(f"Database path: {db_path}")
             if os.path.exists(db_path):
                 logger.info(f"Database file permissions: {oct(os.stat(db_path).st_mode)[-3:]}")
@@ -219,12 +228,22 @@ def health_check():
     try:
         # Try to query the database
         User.query.first()
-        return jsonify({
+        db_path = os.path.join(app.config['INSTANCE_PATH'], 'site.db')
+        
+        health_data = {
             'status': 'healthy',
             'database': 'connected',
-            'database_path': app.config['SQLALCHEMY_DATABASE_URI'],
-            'instance_path': app.config['INSTANCE_PATH']
-        })
+            'database_path': db_path,
+            'instance_path': app.config['INSTANCE_PATH'],
+            'permissions': {
+                'instance_dir': oct(os.stat(app.config['INSTANCE_PATH']).st_mode)[-3:],
+                'database': oct(os.stat(db_path).st_mode)[-3:] if os.path.exists(db_path) else 'not_found',
+                'pdf_folder': oct(os.stat(app.config['PDF_FOLDER']).st_mode)[-3:],
+                'upload_folder': oct(os.stat(app.config['UPLOAD_FOLDER']).st_mode)[-3:]
+            }
+        }
+        
+        return jsonify(health_data)
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
         return jsonify({
@@ -336,7 +355,7 @@ def process_search_query(query, user_id):
 @app.route('/pdfs/<filename>')
 def serve_pdf(filename):
     try:
-        return send_from_directory('data', filename)
+        return send_from_directory(app.config['PDF_FOLDER'], filename)
     except FileNotFoundError:
         logger.warning(f"PDF not found: {filename}")
         return "PDF not found.", 404
