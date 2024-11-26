@@ -47,12 +47,3 @@ jobs:
         app-name: 'EGPT'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: '.'
-
-    - name: Azure CLI Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Azure WebApp Restart
-      run: |
-        az webapp restart --name EGPT --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
