@@ -16,10 +16,13 @@ import openai
 from azure.identity import DefaultAzureCredential
 from flask_migrate import Migrate
 
+
 app = Flask(__name__, static_folder='static')
 app.config.from_object('config.Config')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+from sqlalchemy import inspect
 
 def initialize_database():
     """Initialize database with proper permissions"""
@@ -49,15 +52,18 @@ def initialize_database():
             else:
                 logger.info("Database already exists")
             
-            # Verify database 
-            User.query.first()
-            logger.info("Database connection verified")
-            
+            # Verify database using SQLAlchemy inspect
+            inspector = inspect(db.engine)
+            if not inspector.has_table("users"):  # Check if "users" table exists
+                db.create_all()
+                logger.info("Database tables created successfully.")
+
             return True
         except Exception as e:
             logger.error(f"Database initialization error: {str(e)}")
             logger.exception("Detailed traceback:")
             return False
+
 
 # Initialize database
 if not initialize_database():
