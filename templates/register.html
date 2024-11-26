@@ -3,105 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create an Account</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Register - EGPT</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .error-message {
+            color: #5244f2;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #fef2f2;
+            border: 1px solid #23076d;
+        }
+        .success-message {
+            color: #059669;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #f0fdf4;
+            border: 1px solid #613fbf;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Create your account
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Already have an account?
+                    <a href="{{ url_for('login') }}" class="font-medium text-blue-600 hover:text-blue-500">
+                        Sign in
+                    </a>
+                </p>
+            </div>
 
-<div class="container">
-    <h2>Create an Account</h2>
-    <form method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
+            <!-- Error Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="{{ 'error-message' if category == 'error' else 'success-message' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-
-        <button type="submit">Register</button>
-
-        <a href="{{ url_for('login') }}">Already have an account? Login</a>
-    </form>
-</div>
-
-<footer style="background: linear-gradient(to right, #1e3c72, #2a5298); color: white; padding: 40px 0; width: 100%; font-family: Arial, sans-serif;">
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-        <!-- Logo Section -->
-        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px;">
-            <!-- Company Info -->
-            <div style="flex: 1; min-width: 250px; margin-bottom: 30px;">
-                <div style="margin-bottom: 20px;">
-                    <h3 style="margin: 0; font-size: 24px; font-weight: 600;">Electro Global</h3>
-                    <p style="margin: 5px 0; color: #e0e0e0;">Innovate With Us</p>
+            {% if error %}
+                <div class="error-message">
+                    {{ error }}
                 </div>
-                <div style="color: #e0e0e0; line-height: 1.6;">
-                    <p style="margin: 5px 0;">Bhamashah Technohub, Jaipur<br>Rajasthan</p>
-                    <p style="margin: 5px 0;">(+91)-723-101-2223<br>(+91)-921-671-6124</p>
-                    <p style="margin: 5px 0;">contact@electroglobal.in</p>
+            {% endif %}
+
+            <form class="mt-8 space-y-6" method="POST" action="{{ url_for('register') }}" id="registerForm">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div class="mb-4">
+                        <label for="username" class="sr-only">Username</label>
+                        <input id="username" name="username" type="text" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                               placeholder="Username">
+                    </div>
+                    <div class="mb-4">
+                        <label for="email" class="sr-only">Email address</label>
+                        <input id="email" name="email" type="email" required
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                               placeholder="Email address">
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Password</label>
+                        <input id="password" name="password" type="password" required
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                               placeholder="Password">
+                    </div>
                 </div>
-            </div>
 
-            <!-- Quick Links -->
-            <div style="flex: 1; min-width: 250px; margin-bottom: 30px;">
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Delivery and Returns</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Privacy Policy</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Terms & Conditions</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">About Us</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Shipping Policy</a>
+                <div>
+                    <button type="submit" 
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Register
+                    </button>
                 </div>
-            </div>
-
-            <!-- Shop Links -->
-            <div style="flex: 1; min-width: 250px; margin-bottom: 30px;">
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">New Arrivals</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Daily Deals</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Bulk Order</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Shop</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Contact Us</a>
-                </div>
-            </div>
-
-            <!-- Account Links -->
-            <div style="flex: 1; min-width: 250px; margin-bottom: 30px;">
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">My Account</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Blog/Guide</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Categories</a>
-                    <a href="#" style="color: white; text-decoration: none; transition: color 0.3s ease;">Electro Kits</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- App Downloads -->
-        <div style="text-align: center; margin: 30px 0; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1);">
-            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                <a href="#" style="display: inline-block;"><img src="/api/placeholder/150/50" alt="Google Play" style="height: 40px;"></a>
-                <a href="#" style="display: inline-block;"><img src="/api/placeholder/150/50" alt="App Store" style="height: 40px;"></a>
-            </div>
-        </div>
-
-        <!-- Social Icons -->
-        <div style="text-align: center; margin: 20px 0;">
-            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-facebook"></i></a>
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-twitter"></i></a>
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-instagram"></i></a>
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-linkedin"></i></a>
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-youtube"></i></a>
-                <a href="#" style="color: white; font-size: 24px;"><i class="fab fa-whatsapp"></i></a>
-            </div>
-        </div>
-
-        <!-- Copyright -->
-        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <p style="margin: 0; color: #e0e0e0;">&copy; 2024 Electroglobal Solutions Pvt Ltd. All Rights Reserved.</p>
+            </form>
         </div>
     </div>
-</footer>
 
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            let isValid = true;
+            let errorMessages = [];
+
+            // Username validation
+            if (username.length < 3) {
+                errorMessages.push('Username must be at least 3 characters long');
+                isValid = false;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errorMessages.push('Please enter a valid email address');
+                isValid = false;
+            }
+
+            // Password validation
+            if (password.length < 6) {
+                errorMessages.push('Password must be at least 6 characters long');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.innerHTML = errorMessages.join('<br>');
+                
+                // Remove any existing error messages
+                const existingErrors = document.getElementsByClassName('error-message');
+                Array.from(existingErrors).forEach(error => error.remove());
+                
+                // Insert new error message
+                const form = document.getElementById('registerForm');
+                form.insertBefore(errorDiv, form.firstChild);
+                
+                // Scroll to error message
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+
+        // Clear error messages when user starts typing
+        const inputs = ['username', 'email', 'password'];
+        inputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                const errors = document.getElementsByClassName('error-message');
+                Array.from(errors).forEach(error => error.remove());
+            });
+        });
+    </script>
 </body>
 </html>

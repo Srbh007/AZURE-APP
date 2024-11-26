@@ -21,6 +21,41 @@ app.config.from_object('config.Config')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+def initialize_database():
+    """Initialize database with proper permissions"""
+    with app.app_context():
+        try:
+            # Ensure instance directory exists with proper permissions
+            os.makedirs(app.config['INSTANCE_PATH'], exist_ok=True)
+            os.chmod(app.config['INSTANCE_PATH'], 0o777)
+            logger.info(f"Ensured instance directory at {app.config['INSTANCE_PATH']}")
+
+            # Create database if it doesn't exist
+            if not os.path.exists(os.path.join(app.config['INSTANCE_PATH'], 'site.db')):
+                db.create_all()
+                logger.info("Created new database")
+
+            # Set database file permissions
+            db_path = os.path.join(app.config['INSTANCE_PATH'], 'site.db')
+            if os.path.exists(db_path):
+                os.chmod(db_path, 0o666)
+                logger.info("Set database file permissions")
+
+            # Verify database connection
+            User.query.first()
+            logger.info("Database connection verified")
+            
+            return True
+        except Exception as e:
+            logger.error(f"Database initialization error: {str(e)}")
+            return False
+
+# Initialize database
+if not initialize_database():
+    logger.error("Failed to initialize database")
+    if os.environ.get('FLASK_ENV') == 'production':
+        raise RuntimeError("Database initialization failed in production")
+
 # OpenAI Configuration with error handling
 try:
     openai.api_type = "azure"
@@ -54,7 +89,6 @@ class Chat(db.Model):
 def clean_response(text):
     text = re.sub(r'[\*\#]', '', text)
     return text.strip()
-
 # Your existing keyword_links dictionary
 keyword_links = {
     "Arduino": ["https://blog.arduino.cc/", "https://www.instructables.com/howto/Arduino/"],
@@ -117,24 +151,47 @@ def home():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    try:
-        if request.method == 'POST':
-            username = request.form['username']
-            email = request.form['email']
-            password = generate_password_hash(request.form['password'])
+    if request.method == 'POST':
+        try:
+            username = request.form.get('username')
+            email = request.form.get('email')
+            password = request.form.get('password')
+
+            # Input validation
+            if not all([username, email, password]):
+                return render_template('register.html', error="All fields are required")
             
-            if User.query.filter_by(email=email).first():
-                logger.warning(f"Registration attempt with existing email: {email}")
-                return "User with this email already exists"
+            # Email format validation
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                return render_template('register.html', error="Invalid email format")
             
-            new_user = User(username=username, email=email, password=password)
+            # Check if user exists
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user:
+                return render_template('register.html', error="Email already registered")
+
+            # Create new user
+            password_hash = generate_password_hash(password)
+            new_user = User(username=username, email=email, password=password_hash)
+            
+            # Log database path and permissions before commit
+            db_path = app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
+            logger.info(f"Database path: {db_path}")
+            if os.path.exists(db_path):
+                logger.info(f"Database file permissions: {oct(os.stat(db_path).st_mode)[-3:]}")
+            
             db.session.add(new_user)
             db.session.commit()
-            logger.info(f"New user registered: {username}")
+            
+            logger.info(f"User registered successfully: {email}")
             return redirect(url_for('login'))
-    except Exception as e:
-        logger.error(f"Error in registration: {str(e)}")
-        return "An error occurred during registration. Please try again."
+
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Registration error: {str(e)}")
+            logger.exception("Detailed traceback:")
+            return render_template('register.html', error="Registration failed. Please try again.")
+
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -151,11 +208,31 @@ def login():
                 return redirect(url_for('ghat'))
             
             logger.warning(f"Failed login attempt for email: {email}")
-            return "Invalid credentials. Please try again."
+            return render_template('login.html', error="Invalid credentials. Please try again.")
     except Exception as e:
         logger.error(f"Error in login: {str(e)}")
-        return "An error occurred during login. Please try again."
+        return render_template('login.html', error="An error occurred during login. Please try again.")
     return render_template('login.html')
+
+@app.route('/health')
+def health_check():
+    try:
+        # Try to query the database
+        User.query.first()
+        return jsonify({
+            'status': 'healthy',
+            'database': 'connected',
+            'database_path': app.config['SQLALCHEMY_DATABASE_URI'],
+            'instance_path': app.config['INSTANCE_PATH']
+        })
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e),
+            'database_path': app.config['SQLALCHEMY_DATABASE_URI'],
+            'instance_path': app.config['INSTANCE_PATH']
+        }), 500
 
 @app.route('/ghat')
 def ghat():
@@ -271,13 +348,5 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    with app.app_context():
-        try:
-            db.create_all()
-            logger.info("Database tables created successfully")
-        except Exception as e:
-            logger.error(f"Error creating database tables: {str(e)}")
-            raise
-    
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port)

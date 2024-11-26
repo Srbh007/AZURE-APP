@@ -2,37 +2,49 @@
 
 echo "Starting Azure App Service deployment process"
 
-# Check if the virtual environment already exists, if not, create it
+# Create and set permissions for necessary directories
+mkdir -p /home/site/wwwroot/instance
+chmod 777 /home/site/wwwroot/instance
+mkdir -p /home/site/wwwroot/data
+chmod 777 /home/site/wwwroot/data
+
+# Create and activate virtual environment
 if [ ! -d "/home/antenv" ]; then
-    echo "Virtual environment not found. Creating one..."
-    python3 -m venv /home/antenv  # Create the virtual environment in the writable directory
+    echo "Creating virtual environment..."
+    python3 -m venv /home/antenv
 fi
 
-# Activate the virtual environment
 echo "Activating virtual environment"
 source /home/antenv/bin/activate
 
-# Upgrade pip
+# Upgrade pip and install dependencies
 echo "Upgrading pip"
 pip install --upgrade pip
 
-# Install dependencies
 if [ -f "/home/site/wwwroot/requirements.txt" ]; then
     echo "Installing dependencies"
     pip install -r /home/site/wwwroot/requirements.txt || { echo "Dependency installation failed"; exit 1; }
 else
-    echo "requirements.txt not found! Exiting..."
+    echo "requirements.txt not found!"
     exit 1
 fi
 
-# Apply database migrations (if applicable)
+# Initialize database with proper permissions
+python - << EOF
+from app import initialize_database
+initialize_database()
+EOF
+
+# Apply migrations if they exist
 if [ -d "/home/site/wwwroot/migrations" ]; then
     echo "Applying database migrations"
-    python -m flask db upgrade || { echo "Database migration failed"; exit 1; }
-else
-    echo "No migrations directory found. Skipping database migrations."
+    flask db upgrade || { echo "Migration failed"; exit 1; }
 fi
 
-# Start the Gunicorn server
-echo "Starting Gunicorn server"
+# Ensure proper permissions again after all operations
+chmod 777 /home/site/wwwroot/instance
+chmod 666 /home/site/wwwroot/instance/site.db
+
+# Start Gunicorn
+echo "Starting Gunicorn"
 gunicorn --bind=0.0.0.0 --timeout 600 --workers=4 --chdir=/home/site/wwwroot app:app --log-level debug
