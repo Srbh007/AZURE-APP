@@ -213,21 +213,28 @@ def register():
 def login():
     try:
         if request.method == 'POST':
+            logger.info("Login POST method called.")  # DEBUG LOG 1
+
             email = request.form['email']
             password = request.form['password']
+
+            logger.info(f"Form data received: email={email}, password={password}")  # DEBUG LOG 2
+
             user = User.query.filter_by(email=email).first()
-            
+            logger.info(f"User query result: {user}")  # DEBUG LOG 3
+
             if user and check_password_hash(user.password, password):
                 session['user_id'] = user.id
-                logger.info(f"User logged in: {email}")
+                logger.info(f"User logged in successfully: {email}")  # DEBUG LOG 4
                 return redirect(url_for('ghat'))
             
-            logger.warning(f"Failed login attempt for email: {email}")
+            logger.warning(f"Failed login attempt: email={email}")  # DEBUG LOG 5
             return render_template('login.html', error="Invalid credentials. Please try again.")
     except Exception as e:
-        logger.error(f"Error in login: {str(e)}")
+        logger.error(f"Error in login route: {str(e)}")  # DEBUG LOG 6
         return render_template('login.html', error="An error occurred during login. Please try again.")
     return render_template('login.html')
+
 
 @app.route('/health')
 def health_check():
