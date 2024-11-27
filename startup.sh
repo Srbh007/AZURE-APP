@@ -12,18 +12,18 @@ chmod -R 777 /home/data/uploads
 # Create and activate virtual environment
 if [ ! -d "/home/antenv" ]; then
     echo "Creating virtual environment..."
-    python3 -m venv /home/antenv || { echo "Virtual environment creation failed"; exit 1; }
+    python3 -m venv /home/antenv
 fi
 
 echo "Activating virtual environment"
-source /home/antenv/bin/activate || { echo "Virtual environment activation failed"; exit 1; }
+source /home/antenv/bin/activate
 
 # Upgrade pip and install dependencies
 echo "Upgrading pip"
-pip install --upgrade pip || { echo "Pip upgrade failed"; exit 1; }
+pip install --upgrade pip
 
 if [ -f "/home/site/wwwroot/requirements.txt" ]; then
-    echo "Installing dependencies from requirements.txt"
+    echo "Installing dependencies"
     pip install -r /home/site/wwwroot/requirements.txt || { echo "Dependency installation failed"; exit 1; }
 else
     echo "requirements.txt not found!"
@@ -32,7 +32,7 @@ fi
 
 # Initialize database
 echo "Initializing database..."
-python - << EOF
+python << EOF
 import os
 import sys
 sys.path.append('/home/site/wwwroot')
@@ -40,28 +40,23 @@ from app import initialize_database
 if not initialize_database():
     print("Database initialization failed")
     sys.exit(1)
-EOF || { echo "Database initialization failed"; exit 1; }
+EOF
 
-# Apply migrations if migrations folder exists
+# Apply migrations if they exist
 if [ -d "/home/site/wwwroot/migrations" ]; then
-    echo "Applying database migrations..."
+    echo "Applying database migrations"
     cd /home/site/wwwroot
     export FLASK_APP=app.py
-    flask db upgrade || { echo "Database migration failed"; exit 1; }
-else
-    echo "Migrations folder not found. Skipping migrations."
+    flask db upgrade || { echo "Migration failed"; exit 1; }
 fi
 
-# Verify database file permissions
+# Verify database permissions
 if [ -f "/home/data/instance/site.db" ]; then
     echo "Setting database file permissions..."
     chmod 666 /home/data/instance/site.db
-else
-    echo "Database file not found at /home/data/instance/site.db"
-    exit 1
 fi
 
-# Start Gunicorn to serve the application
-echo "Starting Gunicorn server..."
+# Start Gunicorn with proper path
+echo "Starting Gunicorn..."
 cd /home/site/wwwroot
-gunicorn --bind=0.0.0.0:8000 --timeout 600 --workers=4 app:app --log-level debug || { echo "Gunicorn failed to start"; exit 1; }
+gunicorn --bind=0.0.0.0 --timeout 600 --workers=4 app:app --log-level debug
