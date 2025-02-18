@@ -5,6 +5,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -15,6 +16,8 @@ import re
 import openai
 from azure.identity import DefaultAzureCredential
 from flask_migrate import Migrate
+
+from models import User, db
 
 
 app = Flask(__name__, static_folder='static')
